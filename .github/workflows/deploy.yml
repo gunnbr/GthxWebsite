@@ -1,0 +1,78 @@
+# Tests, deploys infra/main.bicep, and publishes the API to its Flex Consumption function app. The deploy
+# job uses the "production" environment, so it waits for approval when that environment has required
+# reviewers. The static site isn't deployed from here; see infra/README.md.
+#
+# Azure sign-in uses OpenID Connect (no stored Azure password). Repository variables:
+#   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP
+# Repository secret:
+#   BUDGET_CONTACT_EMAIL (where budget alerts go)
+# Until AZURE_CLIENT_ID is set, the deploy job is skipped. See infra/README.md.
+name: Deploy the API to Azure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - 'lib/**'
+      - 'infra/**'
+      - 'GthxWebsite.slnx'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: test
+    if: vars.AZURE_CLIENT_ID != ''
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build the API
+        run: dotnet publish api/Gthx.Web.Api/Gthx.Web.Api.csproj --configuration Release --output "$RUNNER_TEMP/api"
+
+      - uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy the infrastructure
+        id: infra
+        env:
+          BUDGET_CONTACT_EMAIL: ${{ secrets.BUDGET_CONTACT_EMAIL }}
+        run: |
+          outputs=$(az deployment group create \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --name "gthx-web-${{ github.run_number }}" \
+            --parameters infra/main.bicepparam \
+            --query 'properties.outputs' -o json)
+          echo "function-app=$(echo "$outputs" | jq -r .functionAppName.value)" >> "$GITHUB_OUTPUT"
+          echo "API: $(echo "$outputs" | jq -r .apiBaseUrl.value)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the API
+        uses: Azure/functions-action@c5060b3b8bb1ebbcb531abd00c822ecbaa8ea656 # v1.5.7
+        with:
+          app-name: ${{ steps.infra.outputs.function-app }}
+          package: ${{ runner.temp }}/api

@@ -2,9 +2,7 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
+  workflow_call:
 
 permissions:
   contents: read
@@ -23,6 +21,11 @@ jobs:
 
       - name: Test the API
         run: dotnet test GthxWebsite.slnx --configuration Release
+
+      - name: Check the Bicep
+        run: |
+          az bicep build --file infra/main.bicep --stdout > /dev/null
+          BUDGET_CONTACT_EMAIL=ci@example.com az bicep build-params --file infra/main.bicepparam --stdout > /dev/null
 
       # The site has no build step; this only catches syntax errors in its script.
       - name: Check the site's script
