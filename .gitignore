@@ -1,0 +1,24 @@
+# OS / editor clutter
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+.vscode/
+.idea/
+
+# Hosting-panel generated files
+.ftpquota
+cgi-bin/lang/d2utmp*
+
+# Generated traffic statistics (contain visitor IP addresses)
+awstats/data/
+webalizer/*
+!webalizer/.htaccess
+
+# Large media unrelated to the site
+mychill.mp3
+
+# Build output and dependencies (for the modernized project)
+node_modules/
+dist/
