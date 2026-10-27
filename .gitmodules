@@ -1,0 +1,3 @@
+[submodule "lib/GthxNetData"]
+	path = lib/GthxNetData
+	url = https://github.com/gunnbr/GthxNetData
