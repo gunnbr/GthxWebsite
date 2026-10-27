@@ -7,7 +7,9 @@ references. This site lets people search the factoid database and view usage
 statistics.
 
 This repository is a snapshot of the web root as deployed to gthx.net. It was
-last updated in April 2018 and is the starting point for a modernization.
+last updated in April 2018 and is the starting point for a modernization. See
+[docs/MODERNIZATION.md](docs/MODERNIZATION.md) for the plan and the current
+state of the live site.
 
 ## How it works
 
@@ -64,7 +66,8 @@ this project:
 
 ## Deployment
 
-The site was deployed by uploading the files over FTP to the H-Sphere web root.
+The site was originally deployed by uploading the files over FTP to an H-Sphere
+web root. It's now hosted on Namecheap shared hosting (LiteSpeed).
 There's no build step for the files in this repository. Apache serves
 them as-is, and `.htaccess` sends unknown paths to `index.html` so the Angular
 router can handle them.

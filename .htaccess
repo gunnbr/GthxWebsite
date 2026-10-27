@@ -1,4 +1,10 @@
-RewriteEngine On  
+# The site has no PHP. Refuse every PHP request before it reaches the host's
+# PHP 7.2 runtime, which can't be patched for CVE-2026-109618/109619.
+<FilesMatch "\.(php[0-9]?|phtml|phar|phps|pht|pgif|inc)$">
+    Require all denied
+</FilesMatch>
+
+RewriteEngine On
 # If an existing asset or directory is requested go to it as it is
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
