@@ -91,19 +91,66 @@ site to Namecheap, and search runs in the browser.
 - Cons: the data is only as fresh as the export schedule. Needs an automated upload to
   Namecheap (FTP/SFTP). An admin panel would still need a backend later.
 
-### Current thinking
+### Cost and capability findings (checked 2026-10-27)
 
-Not decided. B is the best fit if its Free plan really is $0 and supports what
-we need, because it also solves HTTPS and future auth. D is the cheapest and
-simplest if a delay in data updates is acceptable. A is the fallback if the site
-has to stay on Namecheap with live data.
+- **The bot today** (from GthxNetBot's `infra/` and ROADMAP): about $25/month
+  in `rg-gthx-prod` (westus). Azure SQL `Gthx` on server `gthxdb` is
+  **Basic tier** (5 DTU, about $5/month flat), so website reads add load but
+  no cost. The bot's identity signs in to SQL with Entra (managed identity), not a password.
+- **Container Apps free grant is used up.** It's 180,000 vCPU-s and 360,000 GiB-s
+  per subscription per month. The bot's always-on replica (0.25 vCPU / 0.5 GiB)
+  uses about 657,000 vCPU-s and 1,310,000 GiB-s. Any website container (option C)
+  pays from the first second. The cost would be small if it scaled to zero, but
+  cold starts are slow.
+- **Static Web Apps Free rules out B as written.** Managed Functions support
+  .NET only up to 8.0, which goes out of support on 2026-11-10. They also have
+  **no managed identity and no Key Vault references**, so the API would need a SQL
+  password in an app setting. Linking a normal Functions app ("bring your own")
+  needs the Standard plan (about $9/month). SWA's built-in auth would protect only
+  the SWA routes, not a separate API.
+- **Azure Functions Flex Consumption** has a free grant of 100,000 GB-s and
+  250,000 executions per subscription per month. It supports .NET 10 (isolated
+  worker, GA February 2026) and managed identity. A 512 MB instance gets about
+  200,000 seconds of execution a month for free, far more than this site needs.
+  It also needs a storage account (cents per month). The free grant applies to
+  pay-as-you-go subscriptions; check whether this subscription is one.
+- **HTTPS on Namecheap is fixed** (Let's Encrypt, see phase 0), and SSH now
+  works, so deploys to Namecheap can be scripted (scp/rsync, or from a GitHub
+  Action) instead of uploaded by hand. This removes D's main drawback and
+  one of B's advantages.
+
+### Decision
+
+**Decided 2026-10-27: A, with the API on Azure Functions Flex Consumption (.NET 10, isolated).**
+
+- Frontend: static files on Namecheap (free, HTTPS now works), deployed over SSH.
+- API: a few read-only HTTP functions (`/api/factoids?search=`, `/api/stats`)
+  using GthxNetData. They sign in to Azure SQL with a managed identity that has
+  only `db_datareader`, so there's no password anywhere and the API can't write.
+  CORS allows only `https://gthx.net` and `https://www.gthx.net`.
+- Protect the bot's 5 DTUs: cache responses (stats for minutes, searches
+  briefly), cap result counts, and set a low maximum instance count.
+- Deploy with Bicep + GitHub Actions (OIDC), like the bot, either in
+  `rg-gthx-prod` or in its own resource group with its own budget.
+- Expected cost: about $0 inside the free grant. Cold starts after idle take
+  a few seconds.
+- Later admin panel: add Entra sign-in (App Service Authentication) to the
+  Functions app, and give the admin API a separate identity or role with write access.
+
+D is the fallback if Flex's free grant doesn't apply to this subscription:
+a scheduled export to JSON, uploaded to Namecheap over SSH.
 
 ## Open questions
 
-- Does the existing Azure subscription have a free grant left, given the bot's always-on container?
-- What does Azure SQL charge for extra read traffic from the website? Which tier
-  does the bot use (serverless with auto-pause or provisioned)?
-- How large is the factoid table? This matters for option D's client-side search.
+- ~~Free grant left?~~ Container Apps: no (see findings). Functions Flex: yes, separate grant.
+- ~~Azure SQL read cost?~~ None: Basic tier is a flat rate. The limit is 5 DTU shared with the bot.
+- ~~Subscription type?~~ Visual Studio credit: $50/month for everything, and the bot uses about $25.
+  The Flex free grant may not apply to credit subscriptions, but without it the API costs well under
+  $1/month at this site's traffic (roughly $0.03 per 1,000 half-second requests at 512 MB, plus a
+  few cents of storage). Put it in `rg-gthx-prod` so the existing $50 budget alert covers it.
+- ~~Data size?~~ 5,714 factoids and 1,923 refs (2026-10-27). A full-table `LIKE '%x%'` scan is trivial
+  even on 5 DTU. The whole set would also fit in a few hundred KB of gzipped JSON, so option D's
+  client-side search is feasible too.
 - Which frontend stack? Plain static HTML/JS, a small framework, or Blazor WebAssembly to
   share C# models with GthxNetData?
 - `IGthxData` only has the queries the bot needs. Website queries (substring
@@ -132,7 +179,7 @@ has to stay on Namecheap with live data.
      issued a Let's Encrypt certificate for gthx.net and www.gthx.net through
      the `~/gthx.net` webroot and installed it with the `cpanel_uapi` deploy hook.
      acme.sh's cron job renews and redeploys it. `.htaccess` redirects HTTP to HTTPS.
-1. Decide the architecture (answer the open questions above).
+1. ~~Decide the architecture.~~ Done 2026-10-27: option A (see Decision).
 2. Add website read queries to GthxNetData.
 3. Build the API (if any) and the new frontend.
 4. Deploy, switch gthx.net over, and remove the 2018 files.
