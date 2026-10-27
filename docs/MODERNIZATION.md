@@ -180,12 +180,9 @@ a scheduled export to JSON, uploaded to Namecheap over SSH.
      the `~/gthx.net` webroot and installed it with the `cpanel_uapi` deploy hook.
      acme.sh's cron job renews and redeploys it. `.htaccess` redirects HTTP to HTTPS.
 1. ~~Decide the architecture.~~ Done 2026-10-27: option A (see Decision).
-2. Add website read queries to GthxNetData.
-   **In progress 2026-10-27:** `IGthxWebData` / `GthxWebData` (search, most-referenced
-   factoids, factoid count) on GthxNetData branch `feature/website-queries`. Tests are
-   in GthxNetBot `Gthx.Test/GthxWebDataTest.cs` (branch `feature/website-queries`, in a
-   separate worktree `../GthxNetBot-webdata`); all 8 pass against SQL Server. GthxNetData #9 merged
-   (squash, `f036b96`). GthxNetBot #69 (tests + submodule bump to `f036b96`) is ready for review.
+2. ~~Add website read queries to GthxNetData.~~ Done 2026-10-27: `IGthxWebData` /
+   `GthxWebData` (search, most-referenced factoids, factoid count), GthxNetData #9
+   (`f036b96`). Tests are in GthxNetBot `Gthx.Test/GthxWebDataTest.cs`, GthxNetBot #69.
 3. Build the API and the new frontend. **New design, not a copy of the 2018
    look:** the user wants it to look modern. Keep the content (factoid search,
    most-referenced factoids) and bring design options before building.
