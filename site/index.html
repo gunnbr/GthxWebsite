@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gthx · the RepRap channel’s memory</title>
+<meta name="description" content="gthx is the factoid bot in #reprap on Libera.Chat. Search everything the 3D printing community has taught it.">
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/config.js"></script>
+<script src="assets/site.js" defer></script>
+</head>
+<body data-page="home">
+<header class="site-header">
+<div class="wrap">
+<a class="logo" href="./">&lt;gthx&gt;<span>_</span></a>
+<nav class="site-nav" aria-label="Main">
+<a href="search.html">/search</a>
+<a href="commands.html">/commands</a>
+</nav>
+</div>
+</header>
+
+<main>
+<section class="hero">
+<div class="wrap">
+<div class="hero-text">
+<p class="eyebrow">IRC bot · #reprap on Libera.Chat</p>
+<h1>The RepRap channel’s memory.</h1>
+<p class="lead">gthx remembers what the 3D printing community tells it, passes messages on, reminds you of things and keeps track of who was around. Ask it in IRC, or search everything it knows here.</p>
+<form class="search-box" role="search" action="search.html" method="get">
+<label for="q">gthx:</label>
+<input id="q" name="q" type="search" placeholder="hotend" maxlength="100" autocomplete="off" required>
+<button type="submit" aria-label="Search">?</button>
+</form>
+</div>
+
+<figure class="chat" aria-label="An example conversation with gthx">
+<div class="chat-title"><span>#reprap</span><span>example</span></div>
+<div class="chat-log">
+<p><span class="nick nick-user">&lt;maker42&gt;</span><span>hotend?</span></p>
+<p><span class="nick nick-bot">&lt;gthx&gt;</span><span>hotend is the part of the extruder that melts filament.</span></p>
+<p><span class="nick nick-user">&lt;maker42&gt;</span><span>gthx: tell printfan the new nozzles arrived</span></p>
+<p><span class="nick nick-bot">&lt;gthx&gt;</span><span>maker42: I’ll pass that on when printfan is around.</span></p>
+<p><span class="nick nick-other">&lt;printfan&gt;</span><span>gthx: remind me in 2h to check the print</span></p>
+<p><span class="nick nick-bot">&lt;gthx&gt;</span><span>printfan: Okay, I’ll remind you in 2 hours (reminder 12).</span></p>
+</div>
+</figure>
+</div>
+</section>
+
+<section class="stats" aria-label="Stats">
+<div class="wrap">
+<div class="stat"><span class="stat-value" id="stat-factoids">…</span><span class="stat-label">factoids</span></div>
+<div class="stat"><span class="stat-value">8</span><span class="stat-label">channels</span></div>
+</div>
+</section>
+
+<div class="wrap home-sections">
+<section aria-labelledby="what">
+<h2 id="what">What gthx does</h2>
+<div class="features">
+<article class="feature"><h3>Factoids</h3><p>Teach it something once and anyone can ask for it later. Values can be replies, actions, or several answers joined together.</p><code>gthx: extruder is the part that pushes the plastic</code></article>
+<article class="feature"><h3>Messages</h3><p>Leave a message for someone who isn’t around. gthx passes it on the next time they speak.</p><code>gthx: tell someuser the parts arrived</code></article>
+<article class="feature"><h3>Reminders</h3><p>Relative times from a minute to a year ahead. They survive restarts.</p><code>gthx: remind me in 2 hours to check the print</code></article>
+<article class="feature"><h3>Seen</h3><p>When and where someone last spoke, and what they said.</p><code>seen someuser?</code></article>
+<article class="feature"><h3>Link titles</h3><p>YouTube, Thingiverse, Printables and MakerWorld links get a title and a count of how often they’ve come up.</p><code>https://youtu.be/&lt;id&gt;</code></article>
+<article class="feature"><h3>Status</h3><p>Version, uptime and mood. Feed it a botsnack and its mood improves.</p><code>status?</code></article>
+</div>
+<a class="more-link" href="commands.html">→ all commands</a>
+</section>
+
+<section aria-labelledby="top">
+<div class="section-head">
+<h2 id="top">Most Referenced</h2>
+<span class="note">times asked</span>
+</div>
+<p class="status" id="top-status">-- loading --</p>
+<ol class="ranked top-grid" id="top-list"></ol>
+</section>
+
+<section class="join" aria-labelledby="join">
+<div>
+<h2 id="join">Come say hi</h2>
+<p>gthx is in #reprap and other 3D printing channels on Libera.Chat. Join with any IRC client or Libera’s web chat.</p>
+</div>
+<a class="button" href="https://web.libera.chat/#reprap">/join #reprap</a>
+</section>
+</div>
+</main>
+
+<footer class="site-footer">
+<div class="wrap">
+<span>/join #reprap on irc.libera.chat</span>
+<a href="https://github.com/gunnbr/GthxNetBot">source on github</a>
+</div>
+</footer>
+</body>
+</html>
