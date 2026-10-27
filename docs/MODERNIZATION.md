@@ -181,6 +181,13 @@ a scheduled export to JSON, uploaded to Namecheap over SSH.
      acme.sh's cron job renews and redeploys it. `.htaccess` redirects HTTP to HTTPS.
 1. ~~Decide the architecture.~~ Done 2026-10-27: option A (see Decision).
 2. Add website read queries to GthxNetData.
-3. Build the API (if any) and the new frontend.
+   **In progress 2026-10-27:** `IGthxWebData` / `GthxWebData` (search, most-referenced
+   factoids, factoid count) on GthxNetData branch `feature/website-queries`. Tests are
+   in GthxNetBot `Gthx.Test/GthxWebDataTest.cs` (branch `feature/website-queries`, in a
+   separate worktree `../GthxNetBot-webdata`); all 8 pass against SQL Server. Neither
+   branch is pushed yet.
+3. Build the API and the new frontend. **New design, not a copy of the 2018
+   look:** the user wants it to look modern. Keep the content (factoid search,
+   most-referenced factoids) and bring design options before building.
 4. Deploy, switch gthx.net over, and remove the 2018 files.
 5. Later: admin panel with login.
