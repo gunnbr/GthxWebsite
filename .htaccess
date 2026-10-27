@@ -5,6 +5,11 @@
 </FilesMatch>
 
 RewriteEngine On
+# Send all plain-HTTP requests to HTTPS. The Let's Encrypt certificate is
+# renewed by acme.sh on the host; its HTTP-01 check follows this redirect.
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
 # If an existing asset or directory is requested go to it as it is
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d

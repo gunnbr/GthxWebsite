@@ -109,7 +109,6 @@ has to stay on Namecheap with live data.
 - `IGthxData` only has the queries the bot needs. Website queries (substring
   search, top references, counts) need adding to GthxNetData, or a separate
   read-only interface.
-- Can Namecheap's free AutoSSL / PositiveSSL fix HTTPS for gthx.net in the meantime?
 
 ## Phases
 
@@ -128,6 +127,11 @@ has to stay on Namecheap with live data.
    - Remove the diagnostic and dead CGI scripts and the leftover hosting-panel
      files from the live site.
    - Fix HTTPS on Namecheap if it's free.
+     **Done 2026-10-27:** the account has no AutoSSL, so acme.sh (in
+     `~/.acme.sh` on the host, reached over SSH)
+     issued a Let's Encrypt certificate for gthx.net and www.gthx.net through
+     the `~/gthx.net` webroot and installed it with the `cpanel_uapi` deploy hook.
+     acme.sh's cron job renews and redeploys it. `.htaccess` redirects HTTP to HTTPS.
 1. Decide the architecture (answer the open questions above).
 2. Add website read queries to GthxNetData.
 3. Build the API (if any) and the new frontend.
