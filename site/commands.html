@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commands · gthx</title>
+<meta name="description" content="Every command the gthx IRC bot understands: factoids, messages, reminders, seen and more.">
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="commands">
+<header class="site-header">
+<div class="wrap">
+<a class="logo" href="./">&lt;gthx&gt;<span>_</span></a>
+<nav class="site-nav" aria-label="Main">
+<a href="search.html">/search</a>
+<a href="commands.html" aria-current="page">/commands</a>
+</nav>
+</div>
+</header>
+
+<main>
+<!-- Keep in step with the "Using the bot" section of GthxNetBot's README. -->
+<section class="doc-head">
+<div class="wrap">
+<p class="eyebrow">/commands</p>
+<h1>Talking to gthx</h1>
+<p class="lead">In a channel, start with the bot’s nick: <code>gthx:</code> or <code>gthx,</code>. In a private message you don’t need to, but it does no harm. Commands marked <span class="chip">no nick</span> work without addressing the bot.</p>
+</div>
+</section>
+
+<div class="wrap doc-body">
+<nav class="toc" aria-label="On this page">
+<p>On this page</p>
+<a href="#factoids">Factoids</a>
+<a href="#messages">Messages and reminders</a>
+<a href="#people">People</a>
+<a href="#other">Other</a>
+<a href="#reminder-times">Reminder times</a>
+<a href="#links">Link titles</a>
+</nav>
+
+<div class="doc">
+<section id="factoids" aria-labelledby="factoids-h">
+<h2 id="factoids-h">Factoids</h2>
+<p class="intro">Short facts the channel teaches the bot, so anyone can ask for them later.</p>
+<dl class="commands">
+<div class="command"><dt><code class="cmd">gthx: extruder is the part that pushes the plastic</code></dt><dd>Sets a factoid. “are” works too (<code>gthx: hotends are hot</code>). Setting it again replaces it.</dd></div>
+<div class="command"><dt><code class="cmd">gthx: extruder is also a motor</code></dt><dd>Adds another value to a factoid.</dd></div>
+<div class="command"><dt><code class="cmd">extruder?</code> <code class="cmd">extruder!</code> <span class="chip">no nick</span></dt><dd>Says the factoid. All its values are joined with “and also”.</dd></div>
+<div class="command"><dt><code class="cmd">extruder? | someuser</code> <span class="chip">no nick</span></dt><dd>Says the factoid to someone.</dd></div>
+<div class="command"><dt><code class="cmd">gthx: forget extruder</code></dt><dd>Forgets a factoid.</dd></div>
+<div class="command"><dt><code class="cmd">info extruder</code> <span class="chip">no nick</span></dt><dd>How often the factoid was asked for, and who set or deleted it when.</dd></div>
+</dl>
+</section>
+
+<section class="box" aria-labelledby="values-h">
+<h2 id="values-h">Special factoid values</h2>
+<ul>
+<li>Start a value with <code>&lt;reply&gt;</code> and the bot says just the rest.</li>
+<li>Start it with <code>&lt;action&gt;</code> and the bot does it as a <code>/me</code> action.</li>
+<li><code>!who</code> and <code>!channel</code> are replaced by the asker’s nick and the channel.</li>
+<li>Some factoids are locked and can’t be changed or forgotten.</li>
+</ul>
+</section>
+
+<section id="messages" aria-labelledby="messages-h">
+<h2 id="messages-h">Messages and reminders</h2>
+<p class="intro">Things for later, for someone else or for you.</p>
+<dl class="commands">
+<div class="command"><dt><code class="cmd">gthx: tell someuser the parts arrived</code></dt><dd>Passes the message on the next time someuser says something.</dd></div>
+<div class="command"><dt><code class="cmd">gthx: remind me in 2 hours to check the print</code></dt><dd>Reminds you later. See <a href="#reminder-times">reminder times</a>.</dd></div>
+<div class="command"><dt><code class="cmd">gthx: list reminders</code></dt><dd>Your reminders that haven’t come due, with their numbers.</dd></div>
+<div class="command"><dt><code class="cmd">gthx: cancel reminder 42</code></dt><dd>Cancels one of your reminders.</dd></div>
+</dl>
+</section>
+
+<section id="people" aria-labelledby="people-h">
+<h2 id="people-h">People</h2>
+<p class="intro">Who’s around, and who isn’t.</p>
+<dl class="commands">
+<div class="command"><dt><code class="cmd">seen someuser?</code> <span class="chip">no nick</span></dt><dd>When and where someuser last spoke, and what they said. Private messages don’t count.</dd></div>
+<div class="command"><dt><code class="cmd">lurkers?</code> <span class="chip">no nick</span></dt><dd>How many people in the channel have never said anything.</dd></div>
+</dl>
+</section>
+
+<section id="other" aria-labelledby="other-h">
+<h2 id="other-h">Other</h2>
+<p class="intro">Odds and ends.</p>
+<dl class="commands">
+<div class="command"><dt><code class="cmd">gthx: google pla temperature for someuser</code></dt><dd>Gives someuser a search link.</dd></div>
+<div class="command"><dt><code class="cmd">status?</code> <span class="chip">no nick</span></dt><dd>The bot’s version, uptime and mood.</dd></div>
+</dl>
+</section>
+
+<section id="reminder-times" aria-labelledby="times-h">
+<h2 id="times-h">Reminder times</h2>
+<p>Times are relative, from a minute to a year ahead. Units are seconds, minutes, hours, days, weeks, months and years; a month is 30 days.</p>
+<div class="examples">
+<code class="cmd">30 minutes</code><code class="cmd">an hour</code><code class="cmd">2h</code><code class="cmd">1h30m</code><code class="cmd">1 day and 3 hours</code><code class="cmd">2 weeks</code>
+</div>
+<p>Each nick can have 10 reminders waiting, of up to 400 characters each. When one comes due, gthx posts it right away if you’ve spoken in the last 5 minutes and are still online: in the channel you asked in, or by private message if you’ve left it. Otherwise it reminds you the next time you speak. Reminders survive restarts.</p>
+</section>
+
+<section id="links" aria-labelledby="links-h">
+<h2 id="links-h">Link titles</h2>
+<p>When someone posts one of these links, gthx replies with its title and how many times it has been linked.</p>
+<div class="table-scroll">
+<table>
+<thead><tr><th scope="col">Site</th><th scope="col">Example link</th><th scope="col">Title from</th></tr></thead>
+<tbody>
+<tr><th scope="row">YouTube</th><td class="link">https://youtu.be/&lt;id&gt;</td><td>YouTube’s oEmbed API</td></tr>
+<tr><th scope="row">Thingiverse</th><td class="link">https://www.thingiverse.com/thing:&lt;number&gt;</td><td>Not fetched. The reply gives the thing’s number, or a title saved before.</td></tr>
+<tr><th scope="row">Printables</th><td class="link">https://www.printables.com/model/&lt;id&gt;-&lt;name&gt;</td><td>The name at the end of the link, or an earlier link to the same model</td></tr>
+<tr><th scope="row">MakerWorld</th><td class="link">https://makerworld.com/en/models/&lt;id&gt;-&lt;name&gt;</td><td>The same as Printables</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+<div class="wrap">
+<span>/join #reprap on irc.libera.chat</span>
+<a href="https://github.com/gunnbr/GthxNetBot">source on github</a>
+</div>
+</footer>
+</body>
+</html>
