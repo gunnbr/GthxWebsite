@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/api/">
+    <Project Path="api/Gthx.Web.Api.Tests/Gthx.Web.Api.Tests.csproj" />
+    <Project Path="api/Gthx.Web.Api/Gthx.Web.Api.csproj" />
+  </Folder>
+  <Folder Name="/lib/" />
+  <Folder Name="/lib/GthxNetData/">
+    <Project Path="lib/GthxNetData/Gthx.Core/Gthx.Core.csproj" />
+    <Project Path="lib/GthxNetData/Gthx.Data/Gthx.Data.csproj" />
+  </Folder>
+</Solution>

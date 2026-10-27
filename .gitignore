@@ -22,3 +22,10 @@ mychill.mp3
 # Build output and dependencies (for the modernized project)
 node_modules/
 dist/
+
+# .NET build output (Gthx.Data builds into bin/ at the repo root)
+bin/
+obj/
+*.user
+local.settings.json
+TestResults/
