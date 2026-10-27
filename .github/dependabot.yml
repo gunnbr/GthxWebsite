@@ -1,0 +1,29 @@
+# Monthly update PRs, one per ecosystem, so updates arrive in a few batched PRs instead of one PR per package.
+# (Security updates still arrive as soon as an advisory is published.)
+version: 2
+updates:
+  # The API's own projects. The GthxNetData submodule's packages are updated in its own repo.
+  - package-ecosystem: nuget
+    directories:
+      - /api/Gthx.Web.Api
+      - /api/Gthx.Web.Api.Tests
+    schedule:
+      interval: monthly
+    groups:
+      nuget:
+        patterns: ["*"]
+
+  # Keeps the SHA-pinned actions in .github/workflows up to date.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Moves lib/GthxNetData to the latest master of gunnbr/GthxNetData.
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: monthly

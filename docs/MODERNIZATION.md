@@ -187,4 +187,8 @@ a scheduled export to JSON, uploaded to Namecheap over SSH.
    look:** the user wants it to look modern. Keep the content (factoid search,
    most-referenced factoids) and bring design options before building.
 4. Deploy, switch gthx.net over, and remove the 2018 files.
+   Also retire the earlier attempts: archive the gthx-frontend, gthx-backend and
+   GthxNet repos on GitHub (with a README note pointing at this repo), and clear
+   the old Angular bundles, `cgi-bin/`, `cp/`, `awstats/`, `webalizer/` and other
+   leftovers from the Namecheap document root.
 5. Later: admin panel with login.
