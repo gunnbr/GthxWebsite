@@ -122,6 +122,9 @@ has to stay on Namecheap with live data.
      and switch the account's PHP to a patched version in cPanel if one is offered.
      PHP 7.2 was publicly reachable, so check the server for files that aren't
      in this repo (possible web shells).
+     **Done 2026-10-27:** `.htaccess` PHP block uploaded, `phpinfo.php` deleted,
+     and the account's PHP switched to 8.5.12 (confirmed from outside). An
+     Imunify360 scan found nothing.
    - Remove the diagnostic and dead CGI scripts and the leftover hosting-panel
      files from the live site.
    - Fix HTTPS on Namecheap if it's free.
