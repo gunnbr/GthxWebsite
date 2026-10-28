@@ -193,7 +193,7 @@ a scheduled export to JSON, uploaded to Namecheap over SSH.
    new pages. The 2018 files, including `cgi-bin/`, `cp/`, `awstats/` and
    `webalizer/`, were moved to `~/gthx.net-2018` on the host, outside the web root.
    Delete that folder once nothing turns out to be missing.
-   Still to do: archive the gthx-frontend, gthx-backend and GthxNet repos on GitHub
-   (with a README note pointing at this repo), and remove the 2018 snapshot from
-   the root of this repo.
+   The earlier attempts, gthx-frontend, gthx-backend and GthxNet, are archived on
+   GitHub, each with a README note pointing at this repo.
+   Still to do: remove the 2018 snapshot from the root of this repo.
 5. Later: admin panel with login.
