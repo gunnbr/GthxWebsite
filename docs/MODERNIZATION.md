@@ -195,5 +195,5 @@ a scheduled export to JSON, uploaded to Namecheap over SSH.
    Delete that folder once nothing turns out to be missing.
    The earlier attempts, gthx-frontend, gthx-backend and GthxNet, are archived on
    GitHub, each with a README note pointing at this repo.
-   Still to do: remove the 2018 snapshot from the root of this repo.
+   The 2018 snapshot (the first commit of this repo) was removed from the repo root.
 5. Later: admin panel with login.
