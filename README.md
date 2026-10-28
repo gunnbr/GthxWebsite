@@ -28,7 +28,6 @@ The browser never talks to the database. The API can only read it.
 | `lib/GthxNetData` | Submodule with the bot's data library, shared with GthxNetBot. |
 | `infra/` | Bicep for the API's Azure resources, and the one-time setup. |
 | `scripts/` | `upload-site.sh`, which copies `site/` to the host. |
-| `docs/` | `MODERNIZATION.md`: how the 2018 site was replaced, and what's planned next. |
 
 ## Building and testing
 
@@ -52,6 +51,8 @@ To run the API locally, use the Azure Functions Core Tools (`func start` in `api
 
   It needs a `namecheap` host in `~/.ssh/config`. `site/.htaccess` blocks PHP, redirects HTTP to HTTPS, and
   redirects the old 2018 site's addresses to the new pages.
+- **HTTPS:** gthx.net and www.gthx.net use a free Let's Encrypt certificate from acme.sh on the host
+  (`~/.acme.sh`). Its cron job renews the certificate and installs it through cPanel.
 
 ## History
 
