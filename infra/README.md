@@ -43,5 +43,7 @@ There's no Application Insights, to keep the cost at zero. Add it if the API eve
 
 ## The static site
 
-`site/` is uploaded to Namecheap by hand (it has no build step). Set `window.GTHX_API` in
-`site/assets/config.js` to the API's URL from step 3, then copy the files over SSH (see the README).
+`site/` is uploaded to Namecheap by hand (it has no build step). `scripts/upload-site.sh` copies it over SSH
+and writes `assets/config.js` with the API's URL from step 3:
+
+    scripts/upload-site.sh https://<function app>.azurewebsites.net/api gthx.net

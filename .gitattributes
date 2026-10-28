@@ -1,2 +1,2 @@
-# Keep LF endings everywhere; CGI scripts break with CRLF shebangs
+# Keep LF endings everywhere; shell scripts break with CRLF
 * text=auto eol=lf

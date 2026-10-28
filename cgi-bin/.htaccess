@@ -1,7 +1,0 @@
-<Files awstats.pl>
-AuthUserFile /hsphere/local/home/gunnbr/.statspasswd
-AuthGroupFile /dev/null
-AuthName EnterPassword
-AuthType Basic
-require user gunnbr
-</Files>

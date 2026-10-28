@@ -7,21 +7,13 @@ desktop.ini
 .vscode/
 .idea/
 
-# Hosting-panel generated files
+# Leftovers from the 2018 snapshot that were never committed (traffic statistics contain visitor IP
+# addresses). Safe to delete from a working copy.
 .ftpquota
-cgi-bin/lang/d2utmp*
-
-# Generated traffic statistics (contain visitor IP addresses)
-awstats/data/
-webalizer/*
-!webalizer/.htaccess
-
-# Large media unrelated to the site
+awstats/
+cgi-bin/
+webalizer/
 mychill.mp3
-
-# Build output and dependencies (for the modernized project)
-node_modules/
-dist/
 
 # .NET build output (Gthx.Data builds into bin/ at the repo root)
 bin/
