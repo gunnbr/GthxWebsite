@@ -1,0 +1,16 @@
+# The site has no PHP. Refuse every PHP request before it reaches the host's
+# PHP 7.2 runtime, which can't be patched for CVE-2026-109618/109619.
+<FilesMatch "\.(php[0-9]?|phtml|phar|phps|pht|pgif|inc)$">
+    Require all denied
+</FilesMatch>
+
+RewriteEngine On
+# Send all plain-HTTP requests to HTTPS. The Let's Encrypt certificate is
+# renewed by acme.sh on the host; its HTTP-01 check follows this redirect.
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Routes of the 2018 Angular site, so old links still land somewhere useful.
+RewriteRule ^commands/?$ commands.html [L,R=301]
+RewriteRule ^factoids/?$ search.html [L,R=301]
+RewriteRule ^(welcome|stats|stats\.html|admin|register)/?$ ./ [L,R=301]
