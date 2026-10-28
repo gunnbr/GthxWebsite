@@ -19,6 +19,9 @@ on:
       - 'infra/**'
       - 'GthxWebsite.slnx'
       - '.github/workflows/deploy.yml'
+      # Docs and the one-time setup script don't change what's deployed.
+      - '!**/*.md'
+      - '!infra/setup-github-oidc.sh'
   workflow_dispatch:
 
 permissions:
