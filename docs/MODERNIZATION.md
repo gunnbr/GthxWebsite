@@ -183,12 +183,17 @@ a scheduled export to JSON, uploaded to Namecheap over SSH.
 2. ~~Add website read queries to GthxNetData.~~ Done 2026-10-27: `IGthxWebData` /
    `GthxWebData` (search, most-referenced factoids, factoid count), GthxNetData #9
    (`f036b96`). Tests are in GthxNetBot `Gthx.Test/GthxWebDataTest.cs`, GthxNetBot #69.
-3. Build the API and the new frontend. **New design, not a copy of the 2018
-   look:** the user wants it to look modern. Keep the content (factoid search,
-   most-referenced factoids) and bring design options before building.
+3. ~~Build the API and the new frontend.~~ Done 2026-10-27: `api/` (Azure Functions
+   Flex Consumption, deployed by `.github/workflows/deploy.yml`) and `site/`
+   (design B, Terminal), merged in #1.
 4. Deploy, switch gthx.net over, and remove the 2018 files.
-   Also retire the earlier attempts: archive the gthx-frontend, gthx-backend and
-   GthxNet repos on GitHub (with a README note pointing at this repo), and clear
-   the old Angular bundles, `cgi-bin/`, `cp/`, `awstats/`, `webalizer/` and other
-   leftovers from the Namecheap document root.
+   **Done 2026-10-27:** the API is live, and `site/` is in the Namecheap document root,
+   uploaded with `scripts/upload-site.sh`. `site/.htaccess` redirects the 2018 Angular
+   routes (`/commands`, `/factoids`, `/welcome`, `/stats`, `/admin`, `/register`) to the
+   new pages. The 2018 files, including `cgi-bin/`, `cp/`, `awstats/` and
+   `webalizer/`, were moved to `~/gthx.net-2018` on the host, outside the web root.
+   Delete that folder once nothing turns out to be missing.
+   Still to do: archive the gthx-frontend, gthx-backend and GthxNet repos on GitHub
+   (with a README note pointing at this repo), and remove the 2018 snapshot from
+   the root of this repo.
 5. Later: admin panel with login.
