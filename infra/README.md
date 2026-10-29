@@ -43,7 +43,9 @@ There's no Application Insights, to keep the cost at zero. Add it if the API eve
 
        curl https://<function app>.azurewebsites.net/api/stats
 
-5. Let the admin identity change factoids, and nothing else. In the same database:
+5. Let the admin identity change factoids, and nothing else. The deploy (step 3) creates `id-gthx-web-admin`,
+   so on a setup from before the admin panel, deploy first; until then this fails with "Principal
+   'id-gthx-web-admin' could not be found". Steps 1 to 4 don't need doing again. In the same database:
 
        CREATE USER [id-gthx-web-admin] FROM EXTERNAL PROVIDER;
        GRANT SELECT, UPDATE, DELETE ON dbo.Factoid TO [id-gthx-web-admin];
