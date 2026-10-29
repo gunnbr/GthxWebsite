@@ -27,6 +27,9 @@ cat > "$work/assets/config.js" <<EOF
 window.GTHX_API = "$API";
 window.GTHX_ADMIN = { tenantId: "$TENANT_ID", clientId: "$ADMIN_CLIENT_ID" };
 EOF
+# scp gives the target folder the same mode as $work, which mktemp makes 700. The web server couldn't read
+# the site then, so make everything readable: folders 755, files 644.
+chmod -R u=rwX,go=rX "$work"
 
 ssh "$HOST" "mkdir -p '$TARGET'"
 scp -rq "$work/." "$HOST:$TARGET/"
