@@ -46,3 +46,13 @@ public record DeleteFactoidsResponse(int Deleted);
 public record LockItemRequest(string? Item, bool IsLocked);
 
 public record LockItemResponse(string Item, bool IsLocked, int Changed);
+
+public record EmailKeywordResponse(int Id, string Keyword, string User, DateTime Timestamp)
+{
+    public static EmailKeywordResponse From(EmailKeyword keyword) =>
+        new(keyword.Id, keyword.Keyword, keyword.User, DateTime.SpecifyKind(keyword.Timestamp, DateTimeKind.Utc));
+}
+
+public record EmailKeywordsResponse(IReadOnlyList<EmailKeywordResponse> Keywords);
+
+public record AddEmailKeywordRequest(string? Keyword);

@@ -312,6 +312,59 @@
       .catch(failed($("long-status")));
   }
 
+  // --- Email keywords ------------------------------------------------------------------------------------
+
+  var keywords = [];
+
+  function renderKeywords() {
+    var n = keywords.length;
+    setStatus($("keyword-status"), n === 0 ? "no keywords yet" : n + (n === 1 ? " keyword" : " keywords"));
+    $("keyword-results").replaceChildren.apply($("keyword-results"), keywords.map(function (k) {
+      var status = el("p", { "class": "status", hidden: "" });
+      var remove = el("button", { type: "button", "class": "small-button danger", text: "remove" });
+      remove.addEventListener("click", function () {
+        busy(remove, call("DELETE", "/manage/keywords/" + k.id)
+          .then(function () {
+            keywords = keywords.filter(function (other) { return other.id !== k.id; });
+            renderKeywords();
+          }))
+          .catch(failed(status));
+      });
+      return el("article", { "class": "result admin-factoid" }, [
+        el("time", { datetime: k.timestamp, text: new Date(k.timestamp).toISOString().slice(0, 10) }),
+        el("div", { "class": "result-body" }, [
+          el("h3", { text: k.keyword }),
+          el("p", { "class": "by", text: "— added by " + (k.user || "unknown") }),
+          el("div", { "class": "admin-actions" }, [remove]),
+          status
+        ])
+      ]);
+    }));
+  }
+
+  function loadKeywords() {
+    setStatus($("keyword-status"), "loading");
+    return call("GET", "/manage/keywords")
+      .then(function (body) { keywords = body.keywords; renderKeywords(); })
+      .catch(failed($("keyword-status")));
+  }
+
+  function addKeyword(event) {
+    event.preventDefault();
+    var input = $("keyword-new");
+    var keyword = input.value.trim();
+    if (!keyword) return;
+    busy(document.querySelector("#keyword-form button"), call("POST", "/manage/keywords", { keyword: keyword }))
+      .then(function (added) {
+        input.value = "";
+        keywords = keywords.concat([added]).sort(function (a, b) {
+          return a.keyword.toLowerCase() < b.keyword.toLowerCase() ? -1 : 1;
+        });
+        renderKeywords();
+      })
+      .catch(failed($("keyword-status")));
+  }
+
   function showSignedIn() {
     setStatus($("account-status"), "checking your account");
     return call("GET", "/manage/me").then(function (me) {
@@ -319,6 +372,7 @@
       $("sign-in").hidden = true;
       $("sign-out").hidden = !!config.localObjectId;
       $("admin-panels").hidden = false;
+      return loadKeywords();
     });
   }
 
@@ -328,6 +382,7 @@
     $("find-form").addEventListener("submit", find);
     $("long-load").addEventListener("click", loadLong);
     $("long-delete").addEventListener("click", deleteLong);
+    $("keyword-form").addEventListener("submit", addKeyword);
     $("long-results").addEventListener("change", updateLongButtons);
     $("long-all").addEventListener("change", function () {
       var on = this.checked;

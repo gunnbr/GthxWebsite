@@ -78,6 +78,9 @@ public class AdminFunctionsTest
         Status(await _functions.UpdateFactoid(Request(body: "{\"value\":\"x\"}", objectId: stranger), 1, CancellationToken.None), StatusCodes.Status403Forbidden);
         Status(await _functions.DeleteFactoids(Request(body: "{\"ids\":[1]}", objectId: stranger), CancellationToken.None), StatusCodes.Status403Forbidden);
         Status(await _functions.LockItem(Request(body: "{\"item\":\"pla\",\"isLocked\":true}", objectId: stranger), CancellationToken.None), StatusCodes.Status403Forbidden);
+        Status(await _functions.EmailKeywords(Request(objectId: stranger), CancellationToken.None), StatusCodes.Status403Forbidden);
+        Status(await _functions.AddEmailKeyword(Request(body: "{\"keyword\":\"x\"}", objectId: stranger), CancellationToken.None), StatusCodes.Status403Forbidden);
+        Status(await _functions.DeleteEmailKeyword(Request(objectId: stranger), 1, CancellationToken.None), StatusCodes.Status403Forbidden);
 
         Assert.That(_adminData.Calls, Is.Empty);
     }
@@ -178,6 +181,56 @@ public class AdminFunctionsTest
     }
 
     [Test]
+    public async Task Keywords_Lists()
+    {
+        _adminData.Keywords.Add(new EmailKeyword { Id = 2, Keyword = "printer", User = "web:brian" });
+
+        var response = Ok<EmailKeywordsResponse>(await _functions.EmailKeywords(Request(), CancellationToken.None));
+
+        Assert.That(response.Keywords.Select(k => (k.Id, k.Keyword)), Is.EqualTo(new[] { (2, "printer") }));
+    }
+
+    [Test]
+    public async Task Keywords_AddTrims_AndRecordsWhoAddedIt()
+    {
+        var response = Ok<EmailKeywordResponse>(await _functions.AddEmailKeyword(Request(body: "{\"keyword\":\" printer  \"}"), CancellationToken.None));
+
+        Assert.That(_adminData.Calls, Is.EqualTo(new[] { "add keyword printer web:brian" }));
+        Assert.That((response.Keyword, response.User), Is.EqualTo(("printer", "web:brian")));
+    }
+
+    [Test]
+    public async Task Keywords_AddingAnExistingOneConflicts()
+    {
+        Status(await _functions.AddEmailKeyword(Request(body: $"{{\"keyword\":\"{FakeAdminData.ExistingKeyword}\"}}"), CancellationToken.None), StatusCodes.Status409Conflict);
+    }
+
+    [TestCase("")]
+    [TestCase("{}")]
+    [TestCase("{\"keyword\":\"  \"}")]
+    public async Task Keywords_AddRejectsBadBodies(string body)
+    {
+        Status(await _functions.AddEmailKeyword(Request(body: body), CancellationToken.None), StatusCodes.Status400BadRequest);
+        Assert.That(_adminData.Calls, Is.Empty);
+    }
+
+    [Test]
+    public async Task Keywords_AddRejectsLongKeywords()
+    {
+        var body = $"{{\"keyword\":\"{new string('k', AdminFunctions.MaxKeywordLength + 1)}\"}}";
+
+        Status(await _functions.AddEmailKeyword(Request(body: body), CancellationToken.None), StatusCodes.Status400BadRequest);
+    }
+
+    [Test]
+    public async Task Keywords_Delete()
+    {
+        Assert.That(await _functions.DeleteEmailKeyword(Request(), 2, CancellationToken.None), Is.InstanceOf<NoContentResult>());
+        Status(await _functions.DeleteEmailKeyword(Request(), FakeAdminData.MissingId, CancellationToken.None), StatusCodes.Status404NotFound);
+        Assert.That(_adminData.Calls, Is.EqualTo(new[] { "delete keyword 2", $"delete keyword {FakeAdminData.MissingId}" }));
+    }
+
+    [Test]
     public void HistoryName_FitsTheColumn()
     {
         Assert.That(new AdminUser("id", "brian@example.com").HistoryName, Is.EqualTo("web:brian"));
@@ -187,8 +240,10 @@ public class AdminFunctionsTest
     private class FakeAdminData : IGthxAdminData
     {
         public const int MissingId = 404;
+        public const string ExistingKeyword = "gthx";
 
         public List<Factoid> LongResults { get; } = [];
+        public List<EmailKeyword> Keywords { get; } = [];
         public List<string> Calls { get; } = [];
 
         public Task<List<Factoid>> GetLongFactoidsAsync(int maxItemLength, int maxResults, CancellationToken cancellationToken = default)
@@ -213,6 +268,23 @@ public class AdminFunctionsTest
         {
             Calls.Add($"lock {item} {isLocked}");
             return Task.FromResult(1);
+        }
+
+        public Task<List<EmailKeyword>> GetEmailKeywordsAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Keywords.ToList());
+        }
+
+        public Task<EmailKeyword> AddEmailKeywordAsync(string keyword, string user, CancellationToken cancellationToken = default)
+        {
+            Calls.Add($"add keyword {keyword} {user}");
+            return Task.FromResult(keyword == ExistingKeyword ? null! : new EmailKeyword { Id = 1, Keyword = keyword, User = user });
+        }
+
+        public Task<bool> DeleteEmailKeywordAsync(int id, CancellationToken cancellationToken = default)
+        {
+            Calls.Add($"delete keyword {id}");
+            return Task.FromResult(id != MissingId);
         }
     }
 }

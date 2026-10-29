@@ -7,9 +7,10 @@ using Microsoft.Azure.Functions.Worker;
 namespace Gthx.Web.Api;
 
 /// <summary>
-/// The admin panel's API. App Service Authentication checks the caller's Microsoft Entra token; these check that
-/// the account is an allowed admin. Reads use the public API's read-only database login, and only changes go
-/// through <see cref="IGthxAdminData"/>, whose login can write. Nothing here is cached.
+/// The admin panel's API: factoids, and the keywords the bot emails the admin about. App Service Authentication
+/// checks the caller's Microsoft Entra token; these check that the account is an allowed admin. Factoid searches
+/// use the public API's read-only database login; everything else goes through <see cref="IGthxAdminData"/>,
+/// whose login can write. Nothing here is cached.
 /// </summary>
 /// <remarks>
 /// Routes start with "manage" because the Functions host keeps routes starting with "admin" for itself.
@@ -22,6 +23,8 @@ public class AdminFunctions(IGthxWebData webData, IGthxAdminData adminData, Admi
     public const int DefaultLongLimit = 100;
     public const int MaxLongLimit = 500;
     public const int MaxDeleteCount = 500;
+    /// <summary>The longest keyword the EmailKeyword table holds.</summary>
+    public const int MaxKeywordLength = 60;
 
     [Function("AdminMe")]
     public IActionResult Me(
@@ -145,6 +148,65 @@ public class AdminFunctions(IGthxWebData webData, IGthxAdminData adminData, Admi
 
         var changed = await adminData.SetItemLockedAsync(body.Item, body.IsLocked, cancellationToken);
         return new OkObjectResult(new LockItemResponse(body.Item, body.IsLocked, changed));
+    }
+
+    [Function("AdminEmailKeywords")]
+    public async Task<IActionResult> EmailKeywords(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "manage/keywords")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!AdminAuth.TryGetAdmin(request, options, out _, out var denied))
+        {
+            return denied;
+        }
+
+        var keywords = await adminData.GetEmailKeywordsAsync(cancellationToken);
+        return new OkObjectResult(new EmailKeywordsResponse(keywords.Select(EmailKeywordResponse.From).ToList()));
+    }
+
+    [Function("AdminAddEmailKeyword")]
+    public async Task<IActionResult> AddEmailKeyword(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "manage/keywords")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!AdminAuth.TryGetAdmin(request, options, out var admin, out var denied))
+        {
+            return denied;
+        }
+
+        var body = await ReadBody<AddEmailKeywordRequest>(request, cancellationToken);
+        var keyword = body?.Keyword?.Trim();
+        if (string.IsNullOrEmpty(keyword) || keyword.Length > MaxKeywordLength)
+        {
+            return new BadRequestObjectResult(new ErrorResponse($"The keyword must be 1 to {MaxKeywordLength} characters."));
+        }
+
+        var added = await adminData.AddEmailKeywordAsync(keyword, admin.HistoryName, cancellationToken);
+        if (added == null)
+        {
+            return new ConflictObjectResult(new ErrorResponse($"“{keyword}” is already a keyword."));
+        }
+
+        return new OkObjectResult(EmailKeywordResponse.From(added));
+    }
+
+    [Function("AdminDeleteEmailKeyword")]
+    public async Task<IActionResult> DeleteEmailKeyword(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "manage/keywords/{id:int}")] HttpRequest request,
+        int id,
+        CancellationToken cancellationToken)
+    {
+        if (!AdminAuth.TryGetAdmin(request, options, out _, out var denied))
+        {
+            return denied;
+        }
+
+        if (!await adminData.DeleteEmailKeywordAsync(id, cancellationToken))
+        {
+            return new NotFoundObjectResult(new ErrorResponse("That keyword doesn't exist any more."));
+        }
+
+        return new NoContentResult();
     }
 
     // Null for a missing or malformed body, which the callers turn into a 400.
