@@ -23,6 +23,9 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Some components set display, which would otherwise beat the hidden attribute. */
+[hidden] { display: none !important; }
+
 html { -webkit-text-size-adjust: 100%; }
 
 body {
@@ -241,3 +244,39 @@ tbody tr { border-top: 1px solid var(--line-soft); vertical-align: top; }
 tbody th { padding: 14px 16px; text-align: left; font-weight: 600; }
 tbody td { padding: 14px 16px; color: var(--text-soft); line-height: 1.5; }
 tbody td.link { font-family: var(--mono); font-size: 13px; color: var(--accent); overflow-wrap: anywhere; }
+
+/* Admin */
+
+.admin-account { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.button { border: 0; cursor: pointer; }
+.button:disabled { opacity: 0.5; cursor: default; }
+.button-quiet { background: transparent; color: var(--accent); border: 1px solid var(--line-strong); }
+.button-quiet:hover { background: var(--field); color: var(--accent-hover); }
+.button-danger { background: var(--nick-other); }
+.button-danger:hover:not(:disabled) { background: #fbcfe8; }
+
+.admin-body { display: flex; flex-direction: column; gap: 56px; padding-top: 16px; padding-bottom: 40px; }
+.admin-panel { display: flex; flex-direction: column; gap: 14px; }
+.admin-panel h2 { font-size: 24px; letter-spacing: -0.01em; }
+.admin-panel .intro { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text-faint); max-width: 720px; }
+.admin-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.admin-check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-family: var(--mono); font-size: 14px; color: var(--text-muted); }
+
+.admin-factoid { align-items: flex-start; }
+.admin-factoid .chip { margin-left: 8px; color: var(--nick-user); border-color: var(--nick-user); }
+.admin-factoid .admin-actions { margin-top: 8px; }
+.admin-factoid .status { margin-top: 6px; }
+.admin-select { width: 20px; height: 20px; margin: 4px 0 0; accent-color: var(--accent); }
+.admin-editor {
+  display: block; width: 100%; margin: 6px 0; padding: 10px 12px; resize: vertical;
+  border: 1px solid var(--line-strong); border-radius: 8px; background: var(--field); color: var(--text);
+  font-family: var(--mono); font-size: 15px; line-height: 1.5;
+}
+.admin-editor:focus { outline: none; border-color: var(--accent); }
+.small-button {
+  min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; cursor: pointer;
+  background: transparent; color: var(--text-muted); font-family: var(--mono); font-size: 13px;
+}
+.small-button:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.small-button:disabled { opacity: 0.5; cursor: default; }
+.small-button.danger:hover:not(:disabled) { color: var(--nick-other); border-color: var(--nick-other); }

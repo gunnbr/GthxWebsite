@@ -22,3 +22,27 @@ public record TopResponse(IReadOnlyList<TopFactoid> Factoids);
 public record StatsResponse(int FactoidCount);
 
 public record ErrorResponse(string Error);
+
+// The admin panel's shapes. Unlike the public ones, these include Id and IsLocked, since that's what an admin
+// changes.
+
+public record AdminFactoid(int Id, string Item, bool IsAre, string Value, string User, DateTime Timestamp, bool IsLocked)
+{
+    public static AdminFactoid From(Factoid factoid) =>
+        new(factoid.Id, factoid.Item, factoid.IsAre, factoid.Value, factoid.User,
+            DateTime.SpecifyKind(factoid.Timestamp, DateTimeKind.Utc), factoid.IsLocked);
+}
+
+public record AdminUserResponse(string Name);
+
+public record AdminFactoidsResponse(IReadOnlyList<AdminFactoid> Factoids);
+
+public record UpdateFactoidRequest(string? Value);
+
+public record DeleteFactoidsRequest(IReadOnlyList<int>? Ids);
+
+public record DeleteFactoidsResponse(int Deleted);
+
+public record LockItemRequest(string? Item, bool IsLocked);
+
+public record LockItemResponse(string Item, bool IsLocked, int Changed);

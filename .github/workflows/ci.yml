@@ -27,6 +27,8 @@ jobs:
           az bicep build --file infra/main.bicep --stdout > /dev/null
           BUDGET_CONTACT_EMAIL=ci@example.com az bicep build-params --file infra/main.bicepparam --stdout > /dev/null
 
-      # The site has no build step; this only catches syntax errors in its script.
-      - name: Check the site's script
-        run: node --check site/assets/site.js
+      # The site has no build step; this only catches syntax errors in its scripts.
+      - name: Check the site's scripts
+        run: |
+          node --check site/assets/site.js
+          node --check site/assets/admin.js

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · gthx</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/config.js"></script>
+<script src="assets/admin.js" defer></script>
+</head>
+<body data-page="admin">
+<header class="site-header">
+<div class="wrap">
+<a class="logo" href="./">&lt;gthx&gt;<span>_</span></a>
+<nav class="site-nav" aria-label="Main">
+<a href="search.html">/search</a>
+<a href="commands.html">/commands</a>
+</nav>
+</div>
+</header>
+
+<main>
+<section class="doc-head">
+<div class="wrap">
+<p class="eyebrow">admin</p>
+<h1>Look after the factoids.</h1>
+<div class="admin-account">
+<p class="status" id="account-status" aria-live="polite">-- checking sign-in --</p>
+<button type="button" class="button" id="sign-in" hidden>sign in</button>
+<button type="button" class="button button-quiet" id="sign-out" hidden>sign out</button>
+</div>
+</div>
+</section>
+
+<div class="wrap admin-body" id="admin-panels" hidden>
+<p class="status" id="action-status" aria-live="polite" hidden></p>
+
+<section class="admin-panel" aria-labelledby="find-heading">
+<h2 id="find-heading">/find</h2>
+<p class="intro">Search items and values. You can change a value even when its item is locked; locking stops the bot from changing or forgetting it.</p>
+<form class="search-box" id="find-form" role="search">
+<label for="find-q">gthx:</label>
+<input id="find-q" name="q" type="search" placeholder="hotend" maxlength="100" autocomplete="off" required>
+<button type="submit" aria-label="Search">?</button>
+</form>
+<p class="status" id="find-status" hidden></p>
+<div id="find-results"></div>
+</section>
+
+<section class="admin-panel" aria-labelledby="long-heading">
+<h2 id="long-heading">/too-long</h2>
+<p class="intro">Items longer than the 30 characters the bot now allows. Most were set by accident, like a sentence that happened to contain “is”.</p>
+<div class="admin-actions">
+<button type="button" class="button button-quiet" id="long-load">load them</button>
+<label class="admin-check" hidden id="long-all-label"><input type="checkbox" id="long-all"> select all</label>
+<button type="button" class="button button-danger" id="long-delete" hidden disabled>delete selected</button>
+</div>
+<p class="status" id="long-status" hidden></p>
+<div id="long-results"></div>
+</section>
+</div>
+</main>
+
+<footer class="site-footer">
+<div class="wrap">
+<span>/join #reprap on irc.libera.chat</span>
+<a href="https://github.com/gunnbr/GthxWebsite">source on github</a>
+</div>
+</footer>
+</body>
+</html>

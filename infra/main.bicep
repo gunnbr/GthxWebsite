@@ -1,9 +1,12 @@
-// Azure resources for the gthx.net read-only API, deployed into their own resource group (rg-gthx-web):
+// Azure resources for the gthx.net API, deployed into their own resource group (rg-gthx-web):
 //
 // - User-assigned managed identity the function app runs as. It signs in to the bot's Azure SQL database,
 //   where its database user only has db_datareader, and to the storage account. No passwords anywhere.
+// - A second identity, used only by the admin panel's changes, whose database user can change factoids
 // - Storage account the Functions host needs, which also holds the deployment package (no shared keys)
 // - Flex Consumption plan and the function app (.NET 10 isolated, 512 MB instances, scales to zero)
+// - App Service Authentication ("Easy Auth"), which checks the admin panel's Microsoft Entra sign-in. The
+//   public endpoints stay anonymous.
 // - Monthly cost budget with email alerts
 //
 // The static site itself is on Namecheap, not in Azure. CORS lets only gthx.net call the API.
@@ -29,6 +32,15 @@ param allowedOrigins array
 @minValue(1)
 param maximumInstanceCount int = 2
 
+@description('Client ID of the admin panel\'s app registration (infra/setup-admin-signin.sh). Sign-in is off when empty.')
+param adminClientId string = ''
+
+@description('Comma-separated Microsoft Entra object IDs of the accounts allowed to use the admin panel.')
+param adminObjectIds string = ''
+
+@description('Microsoft Entra tenant the admin accounts are in.')
+param tenantId string = subscription().tenantId
+
 @description('First day of the month the budget starts, yyyy-MM-dd. Must not change after the first deploy.')
 param budgetStartDate string
 
@@ -50,6 +62,13 @@ var storageBlobDataOwnerRoleId = 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
 
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'id-${appName}'
+  location: location
+  tags: tags
+}
+
+// Only the admin functions use this one. Its database user can change factoids; the main identity's can't.
+resource adminIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'id-${appName}-admin'
   location: location
   tags: tags
 }
@@ -114,6 +133,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
     type: 'UserAssigned'
     userAssignedIdentities: {
       '${identity.id}': {}
+      '${adminIdentity.id}': {}
     }
   }
   properties: {
@@ -133,6 +153,11 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           name: 'ConnectionStrings__GthxDb'
           value: 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sqlDatabaseName};Authentication=Active Directory Managed Identity;User Id=${identity.properties.clientId};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
         }
+        {
+          name: 'ConnectionStrings__GthxAdminDb'
+          value: 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sqlDatabaseName};Authentication=Active Directory Managed Identity;User Id=${adminIdentity.properties.clientId};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+        }
+        { name: 'Admin__AllowedObjectIds', value: adminObjectIds }
       ]
     }
     functionAppConfig: {
@@ -159,6 +184,46 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
   dependsOn: [
     storageBlobOwner
   ]
+}
+
+// Checks bearer tokens from the admin panel and passes who signed in to the functions in the
+// X-MS-CLIENT-PRINCIPAL-* headers. Requests without a token still get through, for the public pages; the admin
+// functions turn those away. There's no login page or client secret here: the site gets the token itself.
+resource auth 'Microsoft.Web/sites/config@2024-04-01' = if (!empty(adminClientId)) {
+  parent: functionApp
+  name: 'authsettingsV2'
+  properties: {
+    platform: {
+      enabled: true
+    }
+    globalValidation: {
+      requireAuthentication: false
+      unauthenticatedClientAction: 'AllowAnonymous'
+    }
+    httpSettings: {
+      requireHttps: true
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        enabled: true
+        registration: {
+          openIdIssuer: '${environment().authentication.loginEndpoint}${tenantId}/v2.0'
+          clientId: adminClientId
+        }
+        validation: {
+          allowedAudiences: [
+            adminClientId
+            'api://${adminClientId}'
+          ]
+        }
+      }
+    }
+    login: {
+      tokenStore: {
+        enabled: false
+      }
+    }
+  }
 }
 
 resource budget 'Microsoft.Consumption/budgets@2023-11-01' = if (!empty(budgetContactEmail)) {
@@ -193,3 +258,4 @@ output functionAppName string = functionApp.name
 output apiBaseUrl string = 'https://${functionApp.properties.defaultHostName}/api'
 output identityName string = identity.name
 output identityClientId string = identity.properties.clientId
+output adminIdentityName string = adminIdentity.name

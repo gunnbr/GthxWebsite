@@ -86,7 +86,7 @@ public class FactoidFunctions(IGthxWebData data, IMemoryCache cache)
         return Cached(request, response!, StatsCacheTime);
     }
 
-    private static bool TryReadLimit(HttpRequest request, string name, int defaultValue, int max, out int value, out IActionResult error)
+    internal static bool TryReadLimit(HttpRequest request, string name, int defaultValue, int max, out int value, out IActionResult error)
     {
         error = null!;
         var text = request.Query[name].ToString();
