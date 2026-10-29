@@ -4,6 +4,7 @@
 #
 # Azure sign-in uses OpenID Connect (no stored Azure password). Repository variables:
 #   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP
+#   ADMIN_CLIENT_ID, ADMIN_OBJECT_IDS (the admin panel's sign-in; optional, see infra/setup-admin-signin.sh)
 # Repository secret:
 #   BUDGET_CONTACT_EMAIL (where budget alerts go)
 # Until AZURE_CLIENT_ID is set, the deploy job is skipped. See infra/README.md.
@@ -19,9 +20,10 @@ on:
       - 'infra/**'
       - 'GthxWebsite.slnx'
       - '.github/workflows/deploy.yml'
-      # Docs and the one-time setup script don't change what's deployed.
+      # Docs and the one-time setup scripts don't change what's deployed.
       - '!**/*.md'
       - '!infra/setup-github-oidc.sh'
+      - '!infra/setup-admin-signin.sh'
   workflow_dispatch:
 
 permissions:
@@ -65,6 +67,8 @@ jobs:
         id: infra
         env:
           BUDGET_CONTACT_EMAIL: ${{ secrets.BUDGET_CONTACT_EMAIL }}
+          ADMIN_CLIENT_ID: ${{ vars.ADMIN_CLIENT_ID }}
+          ADMIN_OBJECT_IDS: ${{ vars.ADMIN_OBJECT_IDS }}
         run: |
           outputs=$(az deployment group create \
             --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \

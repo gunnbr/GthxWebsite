@@ -1,7 +1,9 @@
 #!/bin/sh
 # Uploads site/ to the Namecheap host over SSH, pointed at the given API.
 #
-#   scripts/upload-site.sh <API base URL> <target folder on the host>
+#   scripts/upload-site.sh <API base URL> <target folder on the host> [<tenant ID> <admin client ID>]
+#
+# The last two turn on the admin panel's sign-in; infra/setup-admin-signin.sh prints them.
 #
 # For example, to try it out next to the old site before switching over:
 #
@@ -11,6 +13,8 @@
 set -eu
 API=${1:?API base URL, e.g. https://<function app>.azurewebsites.net/api}
 TARGET=${2:?target folder on the host, e.g. gthx.net/next}
+TENANT_ID=${3:-}
+ADMIN_CLIENT_ID=${4:-}
 HOST=${UPLOAD_HOST:-namecheap}
 
 cd "$(dirname "$0")/.."
@@ -19,8 +23,9 @@ trap 'rm -rf "$work"' EXIT
 
 cp -R site/. "$work/"
 cat > "$work/assets/config.js" <<EOF
-// Where the read-only API lives. Written by scripts/upload-site.sh.
+// Where the API lives, and the admin panel's sign-in. Written by scripts/upload-site.sh.
 window.GTHX_API = "$API";
+window.GTHX_ADMIN = { tenantId: "$TENANT_ID", clientId: "$ADMIN_CLIENT_ID" };
 EOF
 
 ssh "$HOST" "mkdir -p '$TARGET'"

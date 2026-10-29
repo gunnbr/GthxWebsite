@@ -1,13 +1,15 @@
 # Azure deployment of the API
 
-`main.bicep` describes the read-only API's resources, in their own resource group (`rg-gthx-web`), apart
+`main.bicep` describes the API's resources, in their own resource group (`rg-gthx-web`), apart
 from the bot's (`rg-gthx-prod`). The website's deploy identity can't touch the bot.
 
 | Resource | Name | Purpose |
 |---|---|---|
 | Managed identity | `id-gthx-web` | What the function app runs as. It signs in to the storage account and to the bot's database, where it can only read. |
+| Managed identity | `id-gthx-web-admin` | Used only for the admin panel's changes. Its database user can change factoids and nothing else. |
 | Storage account | `stgthxweb<suffix>` | The Functions host's storage and the deployment package. Shared keys are off. |
 | Flex Consumption plan and function app | `asp-gthx-web`, `func-gthx-web-<suffix>` | Runs the API (.NET 10 isolated, 512 MB instances, at most 2, scales to zero). CORS allows only `https://gthx.net` and `https://www.gthx.net`. |
+| App Service Authentication | (on the function app) | Checks the admin panel's Microsoft Entra tokens and tells the API who signed in. Requests without a token still reach the public endpoints. Free; on only once `ADMIN_CLIENT_ID` is set. |
 | Budget | `budget-gthx-web` | Email alerts above $5/month. |
 
 The deploy workflow (`.github/workflows/deploy.yml`) runs the tests, deploys the template, and publishes the
@@ -41,9 +43,28 @@ There's no Application Insights, to keep the cost at zero. Add it if the API eve
 
        curl https://<function app>.azurewebsites.net/api/stats
 
+5. Let the admin identity change factoids, and nothing else. In the same database:
+
+       CREATE USER [id-gthx-web-admin] FROM EXTERNAL PROVIDER;
+       GRANT SELECT, UPDATE, DELETE ON dbo.Factoid TO [id-gthx-web-admin];
+       GRANT SELECT, INSERT ON dbo.FactoidHistory TO [id-gthx-web-admin];
+
+   The admin panel's searches use `id-gthx-web`, like the public pages.
+
+6. Set up the admin panel's sign-in. `infra/setup-admin-signin.sh` creates an app registration for
+   `admin.html` (no client secret; it signs in with PKCE), makes it require assignment, and assigns only you.
+   Set the repository variables it prints, `ADMIN_CLIENT_ID` and `ADMIN_OBJECT_IDS` (comma-separated, for
+   more than one admin), run the deploy workflow, and upload the site with the tenant and client ID (below).
+   Then sign in at `https://gthx.net/admin`.
+
+   Until `ADMIN_CLIENT_ID` is set, App Service Authentication stays off and the admin endpoints answer 503,
+   because without it anyone could claim to be signed in.
+
 ## The static site
 
 `site/` is uploaded to Namecheap by hand (it has no build step). `scripts/upload-site.sh` copies it over SSH
-and writes `assets/config.js` with the API's URL from step 3:
+and writes `assets/config.js` with the API's URL from step 3 and the sign-in settings from step 6:
 
-    scripts/upload-site.sh https://<function app>.azurewebsites.net/api gthx.net
+    scripts/upload-site.sh https://<function app>.azurewebsites.net/api gthx.net <tenant ID> <admin client ID>
+
+The public pages are cached for up to 10 minutes, so an admin change can take that long to show on them.
