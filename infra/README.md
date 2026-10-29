@@ -6,7 +6,7 @@ from the bot's (`rg-gthx-prod`). The website's deploy identity can't touch the b
 | Resource | Name | Purpose |
 |---|---|---|
 | Managed identity | `id-gthx-web` | What the function app runs as. It signs in to the storage account and to the bot's database, where it can only read. |
-| Managed identity | `id-gthx-web-admin` | Used only for the admin panel's changes. Its database user can change factoids and nothing else. |
+| Managed identity | `id-gthx-web-admin` | Used only for the admin panel's changes. Its database user can change factoids and email keywords, and nothing else. |
 | Storage account | `stgthxweb<suffix>` | The Functions host's storage and the deployment package. Shared keys are off. |
 | Flex Consumption plan and function app | `asp-gthx-web`, `func-gthx-web-<suffix>` | Runs the API (.NET 10 isolated, 512 MB instances, at most 2, scales to zero). CORS allows only `https://gthx.net` and `https://www.gthx.net`. |
 | App Service Authentication | (on the function app) | Checks the admin panel's Microsoft Entra tokens and tells the API who signed in. Requests without a token still reach the public endpoints. Free; on only once `ADMIN_CLIENT_ID` is set. |
@@ -43,13 +43,18 @@ There's no Application Insights, to keep the cost at zero. Add it if the API eve
 
        curl https://<function app>.azurewebsites.net/api/stats
 
-5. Let the admin identity change factoids, and nothing else. The deploy (step 3) creates `id-gthx-web-admin`,
+5. Let the admin identity change factoids and email keywords, and nothing else. The deploy (step 3) creates `id-gthx-web-admin`,
    so on a setup from before the admin panel, deploy first; until then this fails with "Principal
    'id-gthx-web-admin' could not be found". Steps 1 to 4 don't need doing again. In the same database:
 
        CREATE USER [id-gthx-web-admin] FROM EXTERNAL PROVIDER;
        GRANT SELECT, UPDATE, DELETE ON dbo.Factoid TO [id-gthx-web-admin];
        GRANT SELECT, INSERT ON dbo.FactoidHistory TO [id-gthx-web-admin];
+       GRANT SELECT, INSERT, DELETE ON dbo.EmailKeyword TO [id-gthx-web-admin];
+
+   The bot creates the `EmailKeyword` table when it starts with GthxNetData's `AddEmailKeywords` migration, so
+   that last grant fails with "Cannot find the object" until the bot has been deployed with it. If you set up
+   the admin panel before the keywords, run just that grant. Until then, the panel's keyword list shows an error.
 
    The admin panel's searches use `id-gthx-web`, like the public pages.
 

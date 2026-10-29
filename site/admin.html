@@ -63,6 +63,18 @@
 <p class="status" id="long-status" hidden></p>
 <div id="long-results"></div>
 </section>
+
+<section class="admin-panel" aria-labelledby="keywords-heading">
+<h2 id="keywords-heading">/keywords</h2>
+<p class="intro">When someone on IRC says one of these words, the bot emails you, so you hear about it even when you're offline. Case doesn't matter.</p>
+<form class="search-box" id="keyword-form">
+<label for="keyword-new">keyword:</label>
+<input id="keyword-new" name="keyword" type="text" placeholder="gthx" maxlength="60" autocomplete="off" required>
+<button type="submit" aria-label="Add keyword">+</button>
+</form>
+<p class="status" id="keyword-status" hidden></p>
+<div id="keyword-results"></div>
+</section>
 </div>
 </main>
 
