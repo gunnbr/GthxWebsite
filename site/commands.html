@@ -73,6 +73,7 @@
 <dl class="commands">
 <div class="command"><dt><code class="cmd">gthx: tell someuser the parts arrived</code></dt><dd>Passes the message on the next time someuser says something.</dd></div>
 <div class="command"><dt><code class="cmd">gthx: remind me in 2 hours to check the print</code></dt><dd>Reminds you later. See <a href="#reminder-times">reminder times</a>.</dd></div>
+<div class="command"><dt><code class="cmd">gthx: remind me privately in 2 hours to check the print</code></dt><dd>Reminds you by private message right when it’s due. <code>by dm</code>, <code>by pm</code> and <code>by msg</code> work too.</dd></div>
 <div class="command"><dt><code class="cmd">gthx: list reminders</code></dt><dd>Your reminders that haven’t come due, with their numbers.</dd></div>
 <div class="command"><dt><code class="cmd">gthx: cancel reminder 42</code></dt><dd>Cancels one of your reminders.</dd></div>
 </dl>
@@ -102,7 +103,9 @@
 <div class="examples">
 <code class="cmd">30 minutes</code><code class="cmd">an hour</code><code class="cmd">2h</code><code class="cmd">1h30m</code><code class="cmd">1 day and 3 hours</code><code class="cmd">2 weeks</code>
 </div>
-<p>Each nick can have 10 reminders waiting, of up to 400 characters each. When one comes due, gthx posts it right away if you’ve spoken in the last 5 minutes and are still online: in the channel you asked in, or by private message if you’ve left it. Otherwise it reminds you the next time you speak. Reminders survive restarts.</p>
+<p>Each nick can have 10 reminders waiting, of up to 400 characters each. When one comes due, gthx posts it right away if you’ve spoken in the last 5 minutes and are still online: in the channel you asked in, or by private message if you’ve left it. Otherwise it reminds you the next time you speak.</p>
+<p>A private reminder, asked for with <code>privately</code>, <code>by dm</code>, <code>by pm</code> or <code>by msg</code>, or asked for in a private message, comes by private message as soon as it’s due if you’re in a channel with the bot, whether you’ve spoken lately or not. If you aren’t, gthx sends it privately the next time you speak. Asking in a channel still shows the message there, so ask in a private message to keep it to yourself.</p>
+<p>Reminders survive restarts.</p>
 </section>
 
 <section id="links" aria-labelledby="links-h">
